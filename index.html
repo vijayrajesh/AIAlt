@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEO Alt Text Generator - Powered by Gemini AI</title>
+    <meta name="description"
+        content="Generate SEO-optimized alt text for images using Google Gemini AI. Extract images from articles and create perfect alt text automatically.">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+
+        .input-field {
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(245, 87, 108, 0.4);
+        }
+
+        .status-badge {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: .7;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 3px solid white;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .preview-image {
+            max-height: 400px;
+            object-fit: contain;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .result-box {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-left: 4px solid #667eea;
+        }
+
+        .settings-icon {
+            transition: transform 0.3s ease;
+        }
+
+        .settings-icon:hover {
+            transform: rotate(90deg);
+        }
+
+        .image-card {
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.3s ease;
+            border-radius: 12px;
+            overflow: hidden;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .image-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+            border-color: #667eea;
+        }
+
+        .image-card.selected {
+            border-color: #667eea;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .image-card img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+
+        .image-card-info {
+            padding: 8px;
+            background: white;
+        }
+
+        .filename-copy {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .filename-copy:hover {
+            color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+
+        .filename-copy:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+
+<body class="p-4 md:p-8">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-8 fade-in">
+            <h1 class="text-4xl md:text-5xl font-bold text-white mb-3">
+                🎨 SEO Alt Text Generator
+            </h1>
+            <p class="text-white text-lg opacity-90">
+                Powered by Google Gemini AI
+            </p>
+        </div>
+
+        <!-- Main Card -->
+        <div class="glass-card rounded-2xl p-6 md:p-8 mb-6 fade-in">
+            <!-- Settings Section -->
+            <div class="mb-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                        <span class="settings-icon">⚙️</span> Settings
+                    </h2>
+                    <span id="apiStatus" class="text-sm px-3 py-1 rounded-full bg-gray-200 text-gray-600">
+                        No API Key
+                    </span>
+                </div>
+
+                <div class="space-y-3">
+                    <label for="apiKey" class="block text-sm font-semibold text-gray-700">
+                        Google Gemini API Key
+                    </label>
+                    <div class="flex gap-3">
+                        <input type="password" id="apiKey" placeholder="Enter your Gemini API key..."
+                            class="input-field flex-1 px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-purple-500" />
+                        <button id="saveApiKey" class="btn-primary text-white px-6 py-3 rounded-lg font-semibold">
+                            Save
+                        </button>
+                    </div>
+                    <p class="text-xs text-gray-500">
+                        Get your API key from <a href="https://makersuite.google.com/app/apikey" target="_blank"
+                            class="text-purple-600 hover:underline">Google AI Studio</a>
+                    </p>
+                </div>
+            </div>
+
+            <hr class="my-6 border-gray-200">
+
+            <!-- Input Section -->
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">
+                    📝 Article URL
+                </h2>
+
+                <div class="space-y-3">
+                    <label for="articleUrl" class="block text-sm font-semibold text-gray-700">
+                        Enter the article URL to extract images
+                    </label>
+                    <div class="flex gap-3">
+                        <input type="url" id="articleUrl" placeholder="https://example.com/article..."
+                            class="input-field flex-1 px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-purple-500" />
+                        <button id="fetchImagesBtn"
+                            class="btn-primary text-white px-6 py-3 rounded-lg font-semibold whitespace-nowrap">
+                            🔍 Fetch Images
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Custom Instructions Section -->
+            <div class="mb-6">
+                <label for="customInstructions" class="block text-sm font-semibold text-gray-700 mb-2">
+                    💡 Custom Instructions <span class="text-gray-400 font-normal">(Optional)</span>
+                </label>
+                <textarea id="customInstructions" rows="2"
+                    class="input-field w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-purple-500 resize-none"
+                    placeholder="e.g., Focus on technical details, Emphasize location, Include brand names, etc."></textarea>
+                <p class="text-xs text-gray-500 mt-1">
+                    Add specific instructions for the AI to follow when generating alt text
+                </p>
+            </div>
+
+            <!-- Images Grid -->
+            <div id="imagesContainer" class="hidden mb-6 fade-in">
+                <h3 class="text-xl font-bold text-gray-800 mb-3">🖼️ Select Images</h3>
+                <div id="imagesGrid" class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4"></div>
+                <p class="text-sm text-gray-600 mb-4">💡 Click to select images. Hold <kbd
+                        class="px-2 py-1 bg-gray-200 rounded text-xs font-mono">Shift</kbd> to select multiple images
+                </p>
+                <button id="generateAltBtn"
+                    class="btn-primary w-full text-white px-6 py-4 rounded-lg font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled>
+                    🚀 Generate Alt Text <span id="selectedCount"
+                        class="ml-2 px-2 py-1 bg-white bg-opacity-20 rounded-full text-sm">0 selected</span>
+                </button>
+            </div>
+
+            <!-- Status Messages -->
+            <div id="statusContainer" class="hidden mb-6">
+                <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg">
+                    <div class="flex items-center gap-3">
+                        <div class="spinner"></div>
+                        <div>
+                            <p class="font-semibold text-blue-800" id="statusTitle">Processing...</p>
+                            <p class="text-sm text-blue-600" id="statusMessage">Please wait...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Error Messages -->
+            <div id="errorContainer" class="hidden mb-6">
+                <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
+                    <p class="font-semibold text-red-800">❌ Error</p>
+                    <p class="text-sm text-red-600" id="errorMessage"></p>
+                </div>
+            </div>
+
+            <!-- Image Preview -->
+            <div id="previewContainer" class="hidden mb-6 fade-in">
+                <h3 class="text-xl font-bold text-gray-800 mb-3">🖼️ Image Preview</h3>
+                <div class="bg-gray-50 p-4 rounded-lg text-center">
+                    <img id="previewImage" src="" alt="Preview" class="preview-image mx-auto">
+                    <p class="text-sm text-gray-600 mt-3" id="imageContext"></p>
+                </div>
+            </div>
+
+            <!-- Result Section -->
+            <div id="resultContainer" class="hidden fade-in">
+                <h3 class="text-xl font-bold text-gray-800 mb-3">✨ Generated Alt Text</h3>
+                <div id="resultsWrapper" class="space-y-4"></div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center text-white text-sm opacity-90 space-y-2">
+            <p class="text-base font-semibold">திருச்சிற்றம்பலம், அன்பே சிவம்</p>
+            <p>Developed by <span class="font-semibold">Rajeshkannan MJ</span> with the help of Google Gemini Pro</p>
+            <p>Visit <a href="https://whatistheurl.com/" target="_blank" rel="noopener noreferrer"
+                    class="underline hover:opacity-100 font-semibold">K5 Worksheets - Worksheets for Students and
+                    Teachers</a></p>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const apiKeyInput = document.getElementById('apiKey');
+        const saveApiKeyBtn = document.getElementById('saveApiKey');
+        const apiStatus = document.getElementById('apiStatus');
+        const articleUrlInput = document.getElementById('articleUrl');
+        const fetchImagesBtn = document.getElementById('fetchImagesBtn');
+        const customInstructionsInput = document.getElementById('customInstructions');
+        const imagesContainer = document.getElementById('imagesContainer');
+        const imagesGrid = document.getElementById('imagesGrid');
+        const generateAltBtn = document.getElementById('generateAltBtn');
+        const selectedCount = document.getElementById('selectedCount');
+        const statusContainer = document.getElementById('statusContainer');
+        const statusTitle = document.getElementById('statusTitle');
+        const statusMessage = document.getElementById('statusMessage');
+        const errorContainer = document.getElementById('errorContainer');
+        const errorMessage = document.getElementById('errorMessage');
+        const previewContainer = document.getElementById('previewContainer');
+        const previewImage = document.getElementById('previewImage');
+        const imageContext = document.getElementById('imageContext');
+        const resultContainer = document.getElementById('resultContainer');
+        const resultsWrapper = document.getElementById('resultsWrapper');
+
+        // State
+        let extractedImages = [];
+        let selectedIndices = new Set();
+        let articleTitle = '';
+        let articleContext = '';
+
+        // Initialize
+        loadApiKey();
+
+        // Event Listeners
+        saveApiKeyBtn.addEventListener('click', saveApiKey);
+        fetchImagesBtn.addEventListener('click', fetchImages);
+        generateAltBtn.addEventListener('click', generateAltTexts);
+
+        // Functions
+        function loadApiKey() {
+            const savedKey = localStorage.getItem('geminiApiKey');
+            if (savedKey) {
+                apiKeyInput.value = savedKey;
+                updateApiStatus(true);
+            }
+        }
+
+        function saveApiKey() {
+            const key = apiKeyInput.value.trim();
+            if (!key) {
+                showError('Please enter an API key');
+                return;
+            }
+
+            localStorage.setItem('geminiApiKey', key);
+            updateApiStatus(true);
+            showStatus('Settings Saved', 'API key saved successfully!');
+            setTimeout(hideStatus, 2000);
+        }
+
+        function updateApiStatus(hasKey) {
+            if (hasKey) {
+                apiStatus.textContent = '✅ API Key Saved';
+                apiStatus.className = 'text-sm px-3 py-1 rounded-full bg-green-100 text-green-700';
+            } else {
+                apiStatus.textContent = '❌ No API Key';
+                apiStatus.className = 'text-sm px-3 py-1 rounded-full bg-gray-200 text-gray-600';
+            }
+        }
+
+        function showStatus(title, message) {
+            statusTitle.textContent = title;
+            statusMessage.textContent = message;
+            statusContainer.classList.remove('hidden');
+            errorContainer.classList.add('hidden');
+        }
+
+        function hideStatus() {
+            statusContainer.classList.add('hidden');
+        }
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorContainer.classList.remove('hidden');
+            statusContainer.classList.add('hidden');
+        }
+
+        function hideError() {
+            errorContainer.classList.add('hidden');
+        }
+
+        function updateSelectedCount() {
+            const count = selectedIndices.size;
+            selectedCount.textContent = `${count} selected`;
+            generateAltBtn.disabled = count === 0;
+        }
+
+        function showToast(message) {
+            // Create toast if it doesn't exist
+            let toast = document.getElementById('toast-notification');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'toast-notification';
+                toast.className = 'fixed bottom-5 right-5 bg-gray-800 text-white px-4 py-3 rounded-lg shadow-xl transform translate-y-24 transition-transform duration-300 z-50 flex items-center';
+                document.body.appendChild(toast);
+            }
+
+            toast.textContent = message;
+            toast.style.transform = 'translateY(0)';
+
+            setTimeout(() => {
+                toast.style.transform = 'translateY(150%)';
+            }, 2000);
+        }
+
+        async function fetchImages() {
+            const url = articleUrlInput.value.trim();
+            if (!url) {
+                showError('Please enter an article URL');
+                return;
+            }
+
+            // Reset UI
+            hideError();
+            imagesContainer.classList.add('hidden');
+            previewContainer.classList.add('hidden');
+            resultContainer.classList.add('hidden');
+            imagesGrid.innerHTML = '';
+            extractedImages = [];
+            selectedIndices.clear();
+            updateSelectedCount();
+
+            fetchImagesBtn.disabled = true;
+            fetchImagesBtn.textContent = '⏳ Fetching...';
+
+            try {
+                showStatus('Fetching Article', 'Loading page content...');
+                const htmlContent = await fetchHTML(url);
+
+                // Parse HTML
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(htmlContent, 'text/html');
+
+                // Extract title
+                articleTitle = doc.querySelector('meta[property="og:title"]')?.getAttribute('content')
+                    || doc.querySelector('title')?.textContent
+                    || 'Article';
+
+                // Extract article context for better alt text
+                const metaDescription = doc.querySelector('meta[property="og:description"]')?.getAttribute('content')
+                    || doc.querySelector('meta[name="description"]')?.getAttribute('content')
+                    || '';
+
+                // Extract main content (first few paragraphs)
+                const contentSelectors = [
+                    'article p',
+                    'main p',
+                    '.post-content p',
+                    '.entry-content p',
+                    '.article-content p',
+                    '.content p',
+                    'p'
+                ];
+
+                let paragraphs = [];
+                for (const selector of contentSelectors) {
+                    const elements = doc.querySelectorAll(selector);
+                    if (elements.length > 0) {
+                        paragraphs = Array.from(elements)
+                            .slice(0, 3) // Get first 3 paragraphs
+                            .map(p => p.textContent.trim())
+                            .filter(text => text.length > 50); // Filter out short paragraphs
+                        if (paragraphs.length > 0) break;
+                    }
+                }
+
+                const contentText = paragraphs.join(' ').substring(0, 500); // Limit to 500 chars
+                articleContext = metaDescription || contentText || '';
+
+                // Extract all images
+                const images = [];
+
+                // Get og:image
+                const ogImage = doc.querySelector('meta[property="og:image"]')?.getAttribute('content');
+                if (ogImage) {
+                    images.push({ url: ogImage, source: 'og:image', alt: '' });
+                }
+
+                // Get all img tags
+                const imgTags = doc.querySelectorAll('img');
+                imgTags.forEach(img => {
+                    let src = img.getAttribute('src') || img.getAttribute('data-src');
+                    if (src) {
+                        // Convert relative URLs to absolute
+                        if (src.startsWith('//')) {
+                            src = 'https:' + src;
+                        } else if (src.startsWith('/')) {
+                            const urlObj = new URL(url);
+                            src = urlObj.origin + src;
+                        } else if (!src.startsWith('http')) {
+                            const urlObj = new URL(url);
+                            src = urlObj.origin + '/' + src;
+                        }
+
+                        // Filter out small images (likely icons)
+                        const width = img.getAttribute('width');
+                        const height = img.getAttribute('height');
+                        if (width && height && (parseInt(width) < 100 || parseInt(height) < 100)) {
+                            return;
+                        }
+
+                        // Filter out common tracking pixels and icons
+                        if (src.includes('1x1') || src.includes('pixel') || src.includes('icon') || src.includes('logo')) {
+                            return;
+                        }
+
+                        images.push({
+                            url: src,
+                            source: 'img tag',
+                            alt: img.getAttribute('alt') || ''
+                        });
+                    }
+                });
+
+                // Remove duplicates
+                const uniqueImages = [];
+                const seenUrls = new Set();
+                images.forEach(img => {
+                    if (!seenUrls.has(img.url)) {
+                        seenUrls.add(img.url);
+                        uniqueImages.push(img);
+                    }
+                });
+
+                if (uniqueImages.length === 0) {
+                    throw new Error('No images found in the article');
+                }
+
+                extractedImages = uniqueImages;
+                displayImages();
+                hideStatus();
+
+            } catch (error) {
+                console.error('Error:', error);
+                showError(error.message || 'Failed to fetch images');
+            } finally {
+                fetchImagesBtn.disabled = false;
+                fetchImagesBtn.textContent = '🔍 Fetch Images';
+            }
+        }
+
+        function displayImages() {
+            imagesGrid.innerHTML = '';
+
+            extractedImages.forEach((img, index) => {
+                const card = document.createElement('div');
+                card.className = 'image-card';
+                card.dataset.index = index;
+                // Extract filename from URL
+                const urlParts = img.url.split('/');
+                const filename = urlParts[urlParts.length - 1].split('?')[0]; // Remove query params
+                const displayName = decodeURIComponent(filename).substring(0, 30); // Limit length
+
+                card.innerHTML = `
+                    <img src="${img.url}" alt="${img.alt || 'Image ' + (index + 1)}" loading="lazy" onerror="this.parentElement.style.display='none'">
+                    <div class="image-card-info">
+                        <p class="text-xs text-gray-600 truncate" title="${img.source}">${img.source}</p>
+                        <p class="filename-copy text-xs text-gray-500 truncate font-mono" title="Click to copy: ${decodeURIComponent(filename)}" data-filename="${decodeURIComponent(filename)}">${displayName}</p>
+                    </div>
+                `;
+
+                // Add filename copy functionality
+                const filenamePara = card.querySelector('.filename-copy');
+                filenamePara.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Prevent card selection
+                    const fullFilename = filenamePara.dataset.filename;
+                    navigator.clipboard.writeText(fullFilename).then(() => {
+                        showToast('📋 Filename copied!');
+                    }).catch(err => {
+                        console.error('Failed to copy:', err);
+                        showToast('❌ Failed to copy');
+                    });
+                });
+
+                card.addEventListener('click', (e) => toggleImageSelection(index, card, e.shiftKey));
+                imagesGrid.appendChild(card);
+            });
+
+            imagesContainer.classList.remove('hidden');
+        }
+
+        function toggleImageSelection(index, cardElement, isShiftKey) {
+            if (isShiftKey) {
+                // Multi-select mode
+                if (selectedIndices.has(index)) {
+                    selectedIndices.delete(index);
+                    cardElement.classList.remove('selected');
+                } else {
+                    selectedIndices.add(index);
+                    cardElement.classList.add('selected');
+                }
+            } else {
+                // Single select mode - clear others
+                document.querySelectorAll('.image-card').forEach(card => {
+                    card.classList.remove('selected');
+                });
+                selectedIndices.clear();
+                selectedIndices.add(index);
+                cardElement.classList.add('selected');
+            }
+
+            updateSelectedCount();
+        }
+
+        async function generateAltTexts() {
+            const apiKey = localStorage.getItem('geminiApiKey');
+            if (!apiKey) {
+                showError('Please save your Gemini API key first');
+                return;
+            }
+
+            if (selectedIndices.size === 0) {
+                showError('Please select at least one image');
+                return;
+            }
+
+            // Reset previous results
+            previewContainer.classList.add('hidden');
+            resultContainer.classList.add('hidden');
+            resultsWrapper.innerHTML = '';
+            hideError();
+
+            generateAltBtn.disabled = true;
+            const originalText = generateAltBtn.innerHTML;
+            generateAltBtn.innerHTML = '⏳ Generating...';
+
+            const selectedImages = Array.from(selectedIndices).map(i => ({
+                index: i,
+                data: extractedImages[i]
+            }));
+
+            let successCount = 0;
+            let failCount = 0;
+
+            for (let i = 0; i < selectedImages.length; i++) {
+                const { index, data } = selectedImages[i];
+
+                try {
+                    showStatus(
+                        `Processing ${i + 1}/${selectedImages.length}`,
+                        `Generating alt text for image ${i + 1}...`
+                    );
+
+                    // Fetch and convert image
+                    const base64Image = await fetchImageAsBase64(data.url);
+
+                    // Call Gemini to get 3 variations
+                    const customInstructions = customInstructionsInput.value.trim();
+                    const altTextVariations = await callGemini(apiKey, base64Image, articleTitle, articleContext, customInstructions, data.url);
+
+                    // Add result to UI with all variations
+                    addResultCard(data.url, altTextVariations, i + 1);
+                    successCount++;
+
+                } catch (error) {
+                    console.error('Error processing image:', error);
+                    addResultCard(data.url, [`Error: ${error.message}`], i + 1, true);
+                    failCount++;
+                }
+            }
+
+            // Show results
+            hideStatus();
+            resultContainer.classList.remove('hidden');
+            resultContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+            // Show summary
+            if (failCount > 0) {
+                showError(`Generated ${successCount} alt text(s). ${failCount} failed.`);
+            }
+
+            generateAltBtn.disabled = false;
+            generateAltBtn.innerHTML = originalText;
+        }
+
+        function addResultCard(imageUrl, altTextVariations, number, isError = false) {
+            const card = document.createElement('div');
+            card.className = `result-box p-5 rounded-lg ${isError ? 'border-red-500' : ''}`;
+
+            // Extract filename from URL
+            const urlParts = imageUrl.split('/');
+            const filename = urlParts[urlParts.length - 1].split('?')[0];
+            const displayName = decodeURIComponent(filename).substring(0, 40);
+
+            // Ensure altTextVariations is an array
+            const variations = Array.isArray(altTextVariations) ? altTextVariations : [altTextVariations];
+
+            card.innerHTML = `
+                <div class="flex gap-4 mb-4">
+                    <img src="${imageUrl}" alt="Preview" class="w-24 h-24 object-cover rounded-lg flex-shrink-0">
+                    <div class="flex-1">
+                        <p class="text-xs text-gray-500 mb-1">Image ${number}</p>
+                        <p class="filename-copy text-xs text-gray-600 font-mono mb-2 inline-block cursor-pointer hover:text-purple-600 hover:bg-purple-50 px-1 rounded" title="Click to copy: ${decodeURIComponent(filename)}" data-filename="${decodeURIComponent(filename)}">${displayName}</p>
+                    </div>
+                </div>
+                ${!isError ? `
+                <div class="space-y-3">
+                    ${variations.map((altText, index) => `
+                        <div class="border-l-4 border-purple-400 pl-4 py-2 bg-gray-50 rounded-r">
+                            <div class="flex items-start justify-between gap-3">
+                                <div class="flex-1">
+                                    <p class="text-xs text-purple-600 font-semibold mb-1">Option ${index + 1} <span class="text-gray-400">(${altText.length} chars)</span></p>
+                                    <p class="text-gray-800 text-sm">${altText}</p>
+                                </div>
+                                <button 
+                                    class="copy-variation-btn flex-shrink-0 bg-purple-500 hover:bg-purple-600 text-white px-3 py-1.5 rounded text-xs font-semibold transition"
+                                    data-text="${altText.replace(/"/g, '&quot;')}"
+                                    data-index="${index}"
+                                >
+                                    📋 Copy
+                                </button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                ` : `
+                <div class="border-l-4 border-red-400 pl-4 py-2 bg-red-50 rounded-r">
+                    <p class="text-red-600 text-sm">${variations[0]}</p>
+                </div>
+                `}
+            `;
+
+            // Add filename copy functionality
+            const filenamePara = card.querySelector('.filename-copy');
+            if (filenamePara) {
+                filenamePara.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const fullFilename = filenamePara.dataset.filename;
+                    navigator.clipboard.writeText(fullFilename).then(() => {
+                        showToast('📋 Filename copied!');
+                    }).catch(err => {
+                        console.error('Failed to copy:', err);
+                        showToast('❌ Failed to copy');
+                    });
+                });
+            }
+
+            // Add copy functionality for each variation
+            if (!isError) {
+                const copyBtns = card.querySelectorAll('.copy-variation-btn');
+                copyBtns.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const text = btn.dataset.text;
+                        const index = parseInt(btn.dataset.index) + 1;
+                        navigator.clipboard.writeText(text).then(() => {
+                            showToast(`✅ Option ${index} copied!`);
+                        }).catch(err => {
+                            console.error('Failed to copy:', err);
+                            showToast('❌ Failed to copy');
+                        });
+                    });
+                });
+            }
+
+            resultsWrapper.appendChild(card);
+        }
+
+        async function fetchHTML(url) {
+            const encodedURL = encodeURIComponent(url);
+            const proxyURL = `/proxy/html?url=${encodedURL}`;
+
+            const response = await fetch(proxyURL);
+            if (!response.ok) {
+                throw new Error('Failed to fetch article content');
+            }
+
+            return await response.text();
+        }
+
+        async function fetchImageAsBase64(imageUrl) {
+            const encodedURL = encodeURIComponent(imageUrl);
+            const proxyURL = `/proxy/image?url=${encodedURL}`;
+
+            const response = await fetch(proxyURL);
+            if (!response.ok) {
+                throw new Error('Failed to fetch image');
+            }
+
+            const blob = await response.blob();
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    const base64 = reader.result.split(',')[1];
+                    resolve(base64);
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+            });
+        }
+
+        async function callGemini(apiKey, base64Image, title, context, customInstructions, imageUrl) {
+            // Determine MIME type from URL
+            const extension = imageUrl.split('.').pop().toLowerCase().split('?')[0];
+            let mimeType = 'image/jpeg';
+
+            if (extension === 'png') {
+                mimeType = 'image/png';
+            } else if (extension === 'webp') {
+                mimeType = 'image/webp';
+            } else if (extension === 'gif') {
+                mimeType = 'image/gif';
+            }
+
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+
+            // Build context-aware prompt
+            let promptText = `SEO Expert: Create alt text for an image in the article "${title}".`;
+
+            if (context) {
+                promptText += `\n\nArticle context: ${context}`;
+            }
+
+            if (customInstructions) {
+                promptText += `\n\nUser's custom instructions: ${customInstructions}`;
+            }
+
+            promptText += `\n\nRequirements:
+- CRITICAL: Maximum 125 characters - this is a HARD LIMIT, not a suggestion
+- Count every character including spaces - if over 125, you MUST shorten it
+- Front-load important keywords (brands, products, locations, key subjects)
+- Be specific and descriptive
+- Use natural language (never start with "image of", "picture of", or "photo of")
+- Optimize for SEO and accessibility
+- Relate to the article context
+
+Examples of good length (all under 125 chars):
+- "Samsung Taylor semiconductor facility at night with AMD Google AI chip partnership visualization Austin Texas" (113 chars)
+- "Tesla Cybertruck electric pickup truck with stainless steel body at product launch event" (91 chars)
+
+Generate 3 different variations of alt text, each on a new line.
+Format:
+1. [first variation]
+2. [second variation]
+3. [third variation]
+
+Each variation should be max 125 characters and offer a different perspective or emphasis.`;
+
+            const payload = {
+                contents: [{
+                    parts: [
+                        {
+                            text: promptText
+                        },
+                        {
+                            inline_data: {
+                                mime_type: mimeType,
+                                data: base64Image
+                            }
+                        }
+                    ]
+                }]
+            };
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error?.message || 'Failed to generate alt text');
+            }
+
+            const data = await response.json();
+            const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+
+            if (!rawText) {
+                throw new Error('No alt text generated');
+            }
+
+            // Parse the 3 variations
+            const lines = rawText.split('\n').filter(line => line.trim());
+            const variations = [];
+
+            for (const line of lines) {
+                // Remove numbering (1., 2., 3., etc.)
+                const cleaned = line.replace(/^\d+\.\s*/, '').trim();
+                if (cleaned && cleaned.length <= 125) {
+                    variations.push(cleaned);
+                }
+            }
+
+            // Ensure we have at least 1 variation
+            if (variations.length === 0) {
+                variations.push(rawText.substring(0, 125));
+            }
+
+            return variations;
+        }
+    </script>
+</body>
+
+</html>
+```
